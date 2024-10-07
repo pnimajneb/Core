@@ -58,6 +58,8 @@ class NavTiles extends WidgetGrid
     private $hiddenIfEmpty = false;
 
     private $showNavbar = null;
+
+    private $tileGroupsForFoldersOnly = true;
     
     /**
      * Specifies the alias of the root page of the menu (i.e. tiles for it's children will be generated).
@@ -160,8 +162,13 @@ class NavTiles extends WidgetGrid
             if ($upperLevelTile !== null) {
                 $this->parentTileIds[$tile->getId()] = $upperLevelTile;
             }
-            if ($node->hasChildNodes()) {
-                $this->createTileGroupFromNodes($node->getChildNodes(), $caption . ' > ' . $node->getName(), $tile);
+            
+            if ($this->hasTileGroupsForFoldersOnly()) {
+                if ($node->hasChildNodes()) {
+                    $this->createTileGroupFromNodes($node->getChildNodes(), $caption . ' > ' . $node->getName(), $tile);
+                }
+            } else {
+                $this->createTileGroupFromNodes(array_merge([$node], $node->getChildNodes()), $node->getName());
             }
         }
         
@@ -333,5 +340,27 @@ class NavTiles extends WidgetGrid
     public function hasNavBar(bool $default = true) : bool
     {
         return $this->showNavbar ?? $default;
+    }
+
+    /**
+     * Set to FALSE to generate tile groups for all menu items or to TRUE to have tile groups only for folders
+     * 
+     * @uxon-property tile_groups_for_folders_only
+     * @uxon-type boolean
+     * @uxon-default true
+     * 
+     * @param bool $trueOrFalse
+     * @return \exface\Core\Widgets\NavTiles
+     */
+    public function setTileGroupsForFoldersOnly(bool $trueOrFalse) : NavTiles
+    {
+        $this->tileGroupsForFoldersOnly = $trueOrFalse;
+        return $this;
+    } 
+
+    public function hasTileGroupsForFoldersOnly() : bool
+    {
+        return true;
+        return $this->tileGroupsForFoldersOnly;
     }
 }
